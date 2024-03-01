@@ -1,17 +1,15 @@
-FROM node:16
+#Build Steps
+FROM node:alpine3.10 as build-step
 
-WORKDIR /src
+RUN mkdir /app
+WORKDIR /app
 
-COPY package.json ./
-
+COPY package.json /app
 RUN npm install
+COPY . /app
 
-COPY . . 
+RUN npm run build
 
-ENV PORT=8080
-
-EXPOSE 8080
-
-CMD ["npm", "start"]
-
-
+#Run Steps
+FROM nginx:1.19.8-alpine  
+COPY --from=build-step /app/build /usr/share/nginx/html
